@@ -1,79 +1,91 @@
-// Store participant and trial data
 let participantData = {};
-let trialResults = [];
+let results = [];
 
 // Handle form submission
 document.getElementById("participant-form").addEventListener("submit", function (e) {
-  e.preventDefault(); // Prevent page refresh
+  e.preventDefault();
+  participantData.name = document.getElementById("name").value;
+  participantData.age = document.getElementById("age").value;
+  participantData.gender = document.getElementById("gender").value;
 
-  // Collect participant info
-  const name = document.getElementById("name").value.trim();
-  const age = document.getElementById("age").value.trim();
-  const gender = document.getElementById("gender").value;
-
-  participantData = { name, age, gender, startTime: new Date().toISOString() };
-
-  // Show experiment section
   document.getElementById("form-section").style.display = "none";
   document.getElementById("experiment-section").style.display = "block";
+  document.getElementById("welcome").innerText = `Welcome, ${participantData.name}!`;
 
-  document.getElementById("welcome").textContent = `Welcome, ${name}! The experiment will now begin.`;
-
-  // Start dummy experiment (5 trials)
-  runExperiment();
+  startExperiment();
 });
 
-// Simulate experiment trials (placeholder for now)
-function runExperiment() {
+// Simulated experiment logic
+function startExperiment() {
+  let totalTrials = 5; // demo
   let currentTrial = 0;
-  const totalTrials = 5;
 
-  const trialStatus = document.getElementById("trial-status");
-  trialStatus.textContent = `Trial 1 of ${totalTrials}`;
-
-  const trialInterval = setInterval(() => {
-    currentTrial++;
-    trialResults.push({
-      trial: currentTrial,
-      timestamp: new Date().toISOString(),
-      result: `Dummy result ${currentTrial}`
-    });
-
-    trialStatus.textContent = `Trial ${currentTrial} of ${totalTrials}`;
-
-    if (currentTrial >= totalTrials) {
-      clearInterval(trialInterval);
+  function runTrial() {
+    if (currentTrial < totalTrials) {
+      showCountdown(() => {
+        document.getElementById("trial-status").innerText = `Trial ${currentTrial + 1} of ${totalTrials}`;
+        results.push({
+          trial: currentTrial + 1,
+          target1: "X",
+          target2: "Y",
+          response1: "O",
+          response2: "P"
+        });
+        currentTrial++;
+        setTimeout(runTrial, 1000); // simulate 1s per trial
+      });
+    } else {
       endExperiment();
     }
-  }, 1000);
+  }
+  runTrial();
 }
 
-// End experiment and show download option
+function showCountdown(callback) {
+  const overlay = document.createElement("div");
+  overlay.className = "countdown-overlay";
+  document.body.appendChild(overlay);
+
+  let count = 3;
+  const text = document.createElement("div");
+  text.className = "countdown-text";
+  overlay.appendChild(text);
+
+  function nextCount() {
+    if (count > 0) {
+      text.innerText = count;
+      count--;
+      setTimeout(nextCount, 1000);
+    } else {
+      text.innerText = "GO!";
+      setTimeout(() => {
+        document.body.removeChild(overlay);
+        callback();
+      }, 800);
+    }
+  }
+  nextCount();
+}
+
 function endExperiment() {
   document.getElementById("experiment-section").style.display = "none";
   document.getElementById("download-section").style.display = "block";
 }
 
-// Convert data to CSV
-function generateCSV() {
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += `Name,Age,Gender,StartTime\n${participantData.name},${participantData.age},${participantData.gender},${participantData.startTime}\n\n`;
-  csvContent += "Trial,Timestamp,Result\n";
-
-  trialResults.forEach(trial => {
-    csvContent += `${trial.trial},${trial.timestamp},${trial.result}\n`;
-  });
-
-  return encodeURI(csvContent);
-}
-
 // Download CSV
 document.getElementById("download-btn").addEventListener("click", function () {
-  const csv = generateCSV();
-  const link = document.createElement("a");
-  link.setAttribute("href", csv);
-  link.setAttribute("download", `${participantData.name}_results.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  downloadCSV();
+  document.getElementById("download-section").innerHTML = "<h3>Thank you for participating! Your data has been saved.</h3>";
 });
+
+function downloadCSV() {
+  let csv = "Trial,Target1,Target2,Response1,Response2\n";
+  results.forEach(r => {
+    csv += `${r.trial},${r.target1},${r.target2},${r.response1},${r.response2}\n`;
+  });
+  let blob = new Blob([csv], { type: 'text/csv' });
+  let link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${participantData.name}_results.csv`;
+  link.click();
+}
