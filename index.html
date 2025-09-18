@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Causal Perception Experiment</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -14,33 +15,29 @@
     <!-- Participant Information Form -->
     <div id="form-section" class="card">
       <h2>Participant Information</h2>
-      <form id="participant-form">
-        <input type="text" id="name" placeholder="Enter your name" required><br>
-        <input type="number" id="age" placeholder="Enter your age" required><br>
-        <select id="gender" required>
-          <option value="">Select gender</option>
+      <form id="participant-form" aria-label="Participant Information Form">
+        <label for="name">Name:</label><br />
+        <input type="text" id="name" placeholder="Enter your name" required aria-required="true"/><br />
+        <label for="age">Age:</label><br />
+        <input type="number" id="age" placeholder="Enter your age" min="1" required aria-required="true" /><br />
+        <label for="gender">Gender:</label><br />
+        <select id="gender" required aria-required="true" aria-describedby="genderHelp">
+          <option value="" disabled selected>Select gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
-
-        </select><br>
-        <button type="submit">Start Experiment</button>
+          <option value="Other">Other</option>
+        </select>
+        <small id="genderHelp" class="sr-only">Select your gender from the dropdown list</small><br />
+        <button type="submit" id="start-btn">Start Experiment</button>
       </form>
     </div>
 
-    <!-- Experiment Section -->
-    <div id="experiment-section" class="card" style="display:none;">
-      <h2 id="welcome"></h2>
-      <p id="trial-status"></p>
-      <div id="sketch-holder"></div>
-    </div>
-
-    <!-- Download Section -->
-    <div id="download-section" class="card" style="display:none; margin-top: 20px;">
-      <h3>Thank you for participating!</h3>
-      <button id="download-btn">Download Your Results</button>
+    <!-- A simple note -->
+    <div class="card">
+      <p>When you click “Start Experiment”, a new tab will open with the task.</p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
